@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="mk">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Брз читач на книги (збор по збор)</title>
+    <title>Speed Reader with Voice</title>
     <style>
-        /* Основни стилови */
         * {
             margin: 0;
             padding: 0;
@@ -23,7 +22,6 @@
             color: #fff;
         }
 
-        /* Ѕвезди (позадина) */
         #stars {
             position: fixed;
             top: 0;
@@ -46,7 +44,6 @@
             100% { opacity: 0.9; }
         }
 
-        /* Главен контејнер */
         #container {
             position: relative;
             z-index: 1;
@@ -57,7 +54,6 @@
             text-align: center;
         }
 
-        /* Картичка */
         #card {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
@@ -73,7 +69,6 @@
             justify-content: center;
         }
 
-        /* Наслов */
         h1 {
             font-size: 24px;
             color: #ffdd88;
@@ -90,7 +85,6 @@
             margin-top: 4px;
         }
 
-        /* Поле за текст (внес на книга) */
         #text-input-area {
             width: 100%;
             margin-bottom: 16px;
@@ -117,20 +111,19 @@
             color: #667799;
         }
 
-        /* Контролни копчиња */
         .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
             align-items: center;
             margin: 8px 0 14px;
         }
         .controls button {
-            padding: 10px 24px;
+            padding: 8px 18px;
             border: none;
             border-radius: 30px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             background: #2a3a5a;
             color: #ddeeff;
@@ -138,6 +131,7 @@
             transition: 0.2s;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
         .controls button:hover {
             background: #3a5a7a;
@@ -159,14 +153,29 @@
         .controls button.danger:hover {
             background: #cc5566;
         }
+        .controls button.voice-toggle {
+            background: #1a4a3a;
+            color: #88ddbb;
+            min-width: 100px;
+        }
+        .controls button.voice-toggle.on {
+            background: #2a6a4a;
+            color: #fff;
+        }
+        .controls button.test-voice {
+            background: #3a3a5a;
+            color: #bbccff;
+            min-width: auto;
+            padding: 8px 14px;
+            font-size: 13px;
+        }
 
-        /* Лизгач за брзина */
         .speed-control {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             background: rgba(0,0,0,0.3);
-            padding: 6px 18px;
+            padding: 4px 16px;
             border-radius: 30px;
             border: 1px solid rgba(255,200,100,0.1);
         }
@@ -175,7 +184,7 @@
             font-size: 14px;
         }
         .speed-control input[type="range"] {
-            width: 120px;
+            width: 100px;
             height: 4px;
             -webkit-appearance: none;
             background: #445577;
@@ -193,11 +202,34 @@
         .speed-control span {
             color: #ffdd77;
             font-weight: bold;
-            min-width: 50px;
+            min-width: 40px;
             text-align: center;
         }
 
-        /* Приказ на зборот */
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,200,100,0.1);
+        }
+        .voice-selector label {
+            color: #88aadd;
+            font-size: 13px;
+        }
+        .voice-selector select {
+            background: #1a2a3a;
+            color: #ddeeff;
+            border: 1px solid #3a4a5a;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 13px;
+            max-width: 160px;
+            outline: none;
+        }
+
         #word-display {
             font-size: 48px;
             font-weight: bold;
@@ -213,8 +245,11 @@
             transition: all 0.1s ease;
             word-break: break-word;
         }
+        #word-display.speaking {
+            color: #aaddff;
+            text-shadow: 0 0 50px rgba(100,200,255,0.5);
+        }
 
-        /* Индикатор за напредок */
         #progress {
             width: 100%;
             margin-top: 16px;
@@ -245,7 +280,6 @@
             color: #88aadd;
         }
 
-        /* Статистика */
         #stats {
             margin-top: 6px;
             font-size: 13px;
@@ -261,7 +295,6 @@
             border-radius: 20px;
         }
 
-        /* Инфо (долу лево) */
         #info {
             position: fixed;
             bottom: 28px;
@@ -279,18 +312,21 @@
             color: #ffdd77;
         }
 
-        /* Респонзив */
         @media (max-width: 600px) {
             #word-display {
                 font-size: 32px;
                 min-height: 70px;
             }
             .controls button {
-                padding: 8px 16px;
-                font-size: 14px;
+                padding: 6px 12px;
+                font-size: 13px;
             }
             .speed-control input[type="range"] {
-                width: 80px;
+                width: 70px;
+            }
+            .voice-selector select {
+                max-width: 110px;
+                font-size: 12px;
             }
             #card {
                 padding: 20px 15px;
@@ -307,7 +343,6 @@
             }
         }
 
-        /* Класи за анимација */
         .pulse {
             transform: scale(1.08);
             text-shadow: 0 0 60px rgba(255, 200, 100, 0.9), 0 0 120px rgba(255, 100, 50, 0.5);
@@ -324,109 +359,64 @@
 </head>
 <body>
 
-    <!-- Позадина со ѕвезди -->
     <div id="stars"></div>
 
-    <!-- Главен контејнер -->
     <div id="container">
         <div id="card">
 
-            <h1>📖 Брз читач <small>збор по збор · поддржува сите јазици</small></h1>
+            <h1>📖 Speed Reader <small>word by word · with speech</small></h1>
 
-            <!-- Внес на текст -->
             <div id="text-input-area">
-                <textarea id="book-text" placeholder="Залепи го текстот од книгата тука (англиски, македонски, било кој јазик)...">Author: Intel Macedonia
+                <textarea id="book-text" placeholder="Paste your book text here (any language)...">Author: Intel Macedonia
 Affiliation: Independent Researcher, Skopje, North Macedonia
 Target Journal: Theology and Science (Taylor & Francis)
 Manuscript Type: Research Article
 Word Count: ~9,500
 Date of Submission: June 2026
 
-Contemporary theoretical physics indicates that the electroweak vacuum of the Standard Model may be metastable rather than absolutely stable. Measurements of the Higgs boson mass at approximately 125 GeV, combined with top-quark mass data, place the present vacuum close to the boundary between stability and instability (Degrassi et al., 2012; Buttazzo et al., 2013). This configuration admits the theoretical possibility of vacuum decay — a transition from the present false vacuum to a lower-energy true vacuum via quantum tunneling, formalized in the Coleman–De Luccia framework (Coleman & De Luccia, 1980). Were such a transition to occur, it would propagate at the speed of light, restructuring the fundamental constants and interaction structure of physics within the expanding bubble (Coleman, 1977).
-
-Islamic eschatology, grounded in the Qur'an and authenticated hadith literature, describes the present cosmic order as provisional and subject to a sudden, universal, and irreversible termination at a moment known only to God (Smith & Haddad, 2002; Günther, 2020). This paper conducts a systematic conceptual comparison between the physical model of vacuum decay and the Islamic eschatological framework. It does not advance a concordist claim — that is, it does not assert that Qur'anic texts contain or predict specific results of quantum field theory. Rather, it investigates whether the two frameworks are conceptually coherent, and what the implications of that coherence are for the broader dialogue between Islamic theology and natural science.
-
-Five structural convergences are identified: unpredictability of onset, suddenness, irreversibility, universality of scope, and the provisional ontological status of the present world. Three fundamental divergences are equally identified: the absence of teleology in the physical model, the absence of a divine agent in physical theory, and the absence of any post-cosmic continuation in the vacuum decay scenario. The conclusion is that vacuum decay constitutes a scientifically serious structural analogue to Islamic eschatological doctrine, supporting a complementarity model of the theology-science relationship rather than either conflict or identity.
-
-Keywords: vacuum decay, false vacuum, Higgs metastability, Islamic eschatology, Day of Judgment, As-Sa'a, Asma ul-Husna, theology and science, fine-tuning, concordism
-
-Vacuum Decay and Islamic Eschatology: A Conceptual Comparative Analysis
-
-Abstract
-
-The discovery of the Higgs boson at the Large Hadron Collider in 2012 confirmed a central prediction of the Standard Model of particle physics (ATLAS Collaboration, 2012). However, the measured mass of approximately 125 GeV also sharpened a preexisting theoretical concern: when this value is combined with precision measurements of the top-quark mass, the running of the Higgs quartic coupling becomes negative at energy scales well above the electroweak scale, suggesting that the present vacuum is not the absolute ground state of the theory (Degrassi et al., 2012; Espinosa et al., 2013). The electroweak vacuum may instead be a metastable local minimum — stable against small perturbations but susceptible in principle to quantum tunneling into a deeper, lower-energy configuration (Buttazzo et al., 2013).
-
-The formalism for this process was established by Coleman (1977) and extended to include gravitational effects by Coleman and De Luccia (1980). In the Coleman–De Luccia model, vacuum decay proceeds through the nucleation of a bubble of true vacuum, which subsequently expands at or near the speed of light. The interior of the bubble constitutes a region in which the constants and interactions governing present physics no longer apply (Coleman & De Luccia, 1980). No precursor signal propagates ahead of the bubble wall; the process is therefore undetectable in advance by any observer within the false vacuum (Tegmark, 2014).
-
-Islamic eschatology presents a theologically rich account of the termination of the present world. The Qur'an contains numerous passages describing the dissolution of cosmic structures at the end of time, including the extinguishing of stars, the splitting of the sky, and the transformation of the earth itself (Qur'an 81:1–2; 84:1; 14:48). The hour of this termination — referred to in Islamic sources as As-Sa'a — is explicitly placed beyond human or angelic knowledge and reserved to God alone (Qur'an 31:34; 7:187). Islamic theology further articulates this doctrine through selected Divine Names, including Al-Hafiz (the Preserver), Al-Qayyum (the Self-Sustaining), Al-Qabid (the Constrictor), and Al-Akhir (the Last), each of which carries implications for the governance and ultimate termination of the created order (Nasr, 1996; Ar-Razi, 12th century/2000).
-
-The central research question of this paper is: To what extent do the physical model of vacuum decay and the Islamic eschatological framework display conceptual parallelism, and what are the theological and scientific implications of any such parallelism?
-
-The thesis is twofold. First, the two frameworks share five structural features that are nontrivial — that is, features that are not common to all end-of-universe scenarios and that are therefore not the result of superficial comparison. Second, the frameworks diverge at three fundamental ontological points, and these divergences must be accurately characterized in order for the comparison to remain intellectually honest and methodologically sound.
-
-1. Introduction
-
-1.1 Background and Motivation
-
-1.2 Research Question and Thesis
-
-This paper does not argue that the Qur'an anticipates Coleman–De Luccia tunneling as a technical matter. It does not claim that the statistical probability of vacuum decay within a finite time is theologically significant. It addresses conceptual structure, not empirical confirmation. The comparison is conducted at the level of the categories employed by each framework — not at the level of mathematical formalism on the physics side or of detailed juridical or hadith scholarship on the theology side.
-
-In quantum field theory, the vacuum is defined as the lowest-energy state of a quantum field in a given region of field configuration space (Coleman, 1977). A false vacuum is a local minimum of the effective potential that is not the global minimum: it is stable against small perturbations but thermodynamically and quantum mechanically susceptible to decay into a lower-energy state (Coleman, 1977). The concept of a true vacuum designates the global minimum — the state of lowest possible energy within the theory.
-
-The distinction between false and true vacuum becomes physically significant when quantum tunneling is considered. Even in the absence of sufficient thermal energy to overcome the potential barrier separating the two minima, quantum mechanics permits a nonzero probability of barrier penetration — a process that has no classical analogue (Coleman, 1977). For the electroweak vacuum, this probability is extraordinarily small per unit volume per unit time under current parameter estimates, but it is not zero (Degrassi et al., 2012; Buttazzo et al., 2013).
-
-The electroweak symmetry-breaking sector of the Standard Model is governed by the Higgs potential. The stability of this potential at high field values depends sensitively on the value of the Higgs quartic coupling and its running under the renormalization group equations (Degrassi et al., 2012). The Higgs quartic coupling is itself determined at low energies by the Higgs boson mass, while its running is strongly influenced by the top Yukawa coupling and hence by the top-quark mass (Espinosa et al., 2013).
-
-Current measurements place the Higgs boson mass at approximately 125.09 GeV and the top-quark mass near 172.4 GeV (ATLAS Collaboration, 2012; Degrassi et al., 2012). Under these values, the Higgs quartic coupling runs to negative values at a renormalization scale of approximately 10¹⁰ GeV, generating a secondary minimum in the effective potential at very large field values (Degrassi et al., 2012; Buttazzo et al., 2013). The present electroweak vacuum is therefore likely metastable rather than absolutely stable, though with a lifetime estimated to be many orders of magnitude longer than the present age of the universe (Espinosa et al., 2013).
-
-1.3 Scope and Limitations
-
-2. Theoretical Background: Vacuum Decay
-
-2.1 The Quantum Vacuum and Metastability
-
-2.2 Higgs Vacuum Metastability
-
-Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Coleman (1977) to incorporate the effects of gravity on vacuum decay. In the resulting formalism, the decay process is described by a bounce solution — a Euclidean instanton — that mediates the tunneling between the false and true vacuum configurations (Coleman & De Luccia, 1980). The nucleation rate per unit volume per unit time is given by:</textarea>
+Contemporary theoretical physics indicates that the electroweak vacuum of the Standard Model may be metastable rather than absolutely stable. Measurements of the Higgs boson mass at approximately 125 GeV, combined with top-quark mass data, place the present vacuum close to the boundary between stability and instability (Degrassi et al., 2012; Buttazzo et al., 2013). This configuration admits the theoretical possibility of vacuum decay — a transition from the present false vacuum to a lower-energy true vacuum via quantum tunneling, formalized in the Coleman–De Luccia framework (Coleman & De Luccia, 1980). Were such a transition to occur, it would propagate at the speed of light, restructuring the fundamental constants and interaction structure of physics within the expanding bubble (Coleman, 1977).</textarea>
             </div>
 
-            <!-- Контроли -->
             <div class="controls">
-                <button id="btn-start" class="primary">▶ Старт</button>
-                <button id="btn-pause">⏸ Пауза</button>
-                <button id="btn-stop" class="danger">⏹ Стоп</button>
+                <button id="btn-start" class="primary">▶ Start</button>
+                <button id="btn-pause">⏸ Pause</button>
+                <button id="btn-stop" class="danger">⏹ Stop</button>
+
                 <div class="speed-control">
-                    <label>⚡ Брзина</label>
+                    <label>⚡ Speed</label>
                     <input type="range" id="speed-slider" min="50" max="800" value="250" step="10" />
                     <span id="speed-display">250</span>
                 </div>
+
+                <button id="btn-voice-toggle" class="voice-toggle on">🔊 Voice ON</button>
+                <button id="btn-test-voice" class="test-voice">🔊 Test</button>
+
+                <div class="voice-selector">
+                    <label>🎤</label>
+                    <select id="voice-select"></select>
+                </div>
             </div>
 
-            <!-- Приказ на зборот -->
             <div id="word-display">📚</div>
 
-            <!-- Напредок -->
             <div id="progress">
                 <div class="bar"><div class="fill" id="progress-fill"></div></div>
                 <div class="info" id="progress-text">0 / 0</div>
             </div>
 
-            <!-- Статистика -->
             <div id="stats">
-                <span id="stat-words">Зборови: 0</span>
-                <span id="stat-time">Време: 0:00</span>
+                <span id="stat-words">Words: 0</span>
+                <span id="stat-time">Time: 0:00</span>
             </div>
 
         </div>
     </div>
 
-    <!-- Инфо -->
-    <div id="info">📚 <span>Читач на книги</span> · збор по збор</div>
+    <div id="info">📚 <span>Book Reader</span> · word by word + voice</div>
 
     <script>
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 1. Генерирање ѕвезди
+        // 1. Stars background
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const starsContainer = document.getElementById('stars');
         for (let i = 0; i < 180; i++) {
@@ -444,7 +434,7 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 2. ДОМ елементи
+        // 2. DOM elements
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const textarea = document.getElementById('book-text');
         const wordDisplay = document.getElementById('word-display');
@@ -457,25 +447,31 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
         const progressText = document.getElementById('progress-text');
         const statWords = document.getElementById('stat-words');
         const statTime = document.getElementById('stat-time');
+        const btnVoiceToggle = document.getElementById('btn-voice-toggle');
+        const btnTestVoice = document.getElementById('btn-test-voice');
+        const voiceSelect = document.getElementById('voice-select');
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 3. Состојба
+        // 3. State
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        let words = [];               // низа од зборови
-        let currentIndex = 0;         // кој збор е тековен
-        let timer = null;            // setInterval id
+        let words = [];
+        let currentIndex = 0;
+        let timer = null;
         let isPaused = false;
         let isRunning = false;
         let startTime = 0;
         let elapsedSeconds = 0;
 
+        // Voice
+        let speechSynth = window.speechSynthesis;
+        let voices = [];
+        let voiceEnabled = true;
+        let currentUtterance = null;
+
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 4. Помошни функции
+        // 4. Helper functions
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         function getWordsFromText(text) {
-            // Разделување на зборови – ги дели по празни места и интерпункција,
-            // но ги задржува самогласките и буквите (вкл. македонска кирилица).
-            // Едноставно: split по whitespace и филтрирање празни стрингови.
             return text.split(/\s+/).filter(w => w.length > 0);
         }
 
@@ -490,7 +486,7 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
             const pct = Math.min((current / total) * 100, 100);
             progressFill.style.width = pct + '%';
             progressText.textContent = `${Math.min(current, total)} / ${total}`;
-            statWords.textContent = `Зборови: ${total}`;
+            statWords.textContent = `Words: ${total}`;
         }
 
         function updateStats() {
@@ -500,81 +496,171 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
             }
             const mins = Math.floor(elapsedSeconds / 60);
             const secs = elapsedSeconds % 60;
-            statTime.textContent = `Време: ${mins}:${secs.toString().padStart(2, '0')}`;
+            statTime.textContent = `Time: ${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
+        // ─── Voice functions ───
+        function speakWord(word) {
+            if (!voiceEnabled || !speechSynth) return;
+            if (currentUtterance) {
+                speechSynth.cancel();
+                currentUtterance = null;
+            }
+            const utterance = new SpeechSynthesisUtterance(word);
+            const selectedVoice = voiceSelect.value;
+            if (selectedVoice) {
+                const voice = voices.find(v => v.name === selectedVoice);
+                if (voice) utterance.voice = voice;
+            }
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            currentUtterance = utterance;
+            setTimeout(() => {
+                speechSynth.speak(utterance);
+            }, 30);
+        }
+
+        function populateVoices() {
+            voices = speechSynth ? speechSynth.getVoices() : [];
+            voiceSelect.innerHTML = '';
+            if (!voices.length) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = '⚠️ No voices available';
+                voiceSelect.appendChild(opt);
+                return;
+            }
+            // Priority: mk, sr, bg, then others
+            const priority = ['mk', 'sr', 'bg'];
+            const sorted = [...voices].sort((a, b) => {
+                const la = a.lang.substring(0, 2);
+                const lb = b.lang.substring(0, 2);
+                const ia = priority.indexOf(la);
+                const ib = priority.indexOf(lb);
+                if (ia !== -1 && ib === -1) return -1;
+                if (ib !== -1 && ia === -1) return 1;
+                if (ia !== -1 && ib !== -1) return ia - ib;
+                return a.name.localeCompare(b.name);
+            });
+            sorted.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.name;
+                const flags = { 'mk': '🇲🇰', 'sr': '🇷🇸', 'bg': '🇧🇬' };
+                const flag = flags[v.lang.substring(0, 2)] || '';
+                opt.textContent = `${flag} ${v.name} (${v.lang})`;
+                voiceSelect.appendChild(opt);
+            });
+            // Select first Macedonian, else Serbian, else Bulgarian, else first
+            const first = voices.find(v => v.lang.startsWith('mk')) ||
+                          voices.find(v => v.lang.startsWith('sr')) ||
+                          voices.find(v => v.lang.startsWith('bg')) ||
+                          voices[0];
+            if (first) voiceSelect.value = first.name;
+        }
+
+        function initVoices() {
+            if (speechSynth) {
+                let attempts = 0;
+                const tryPopulate = () => {
+                    const v = speechSynth.getVoices();
+                    if (v && v.length > 0) {
+                        populateVoices();
+                    } else if (attempts < 5) {
+                        attempts++;
+                        setTimeout(tryPopulate, 300);
+                    } else {
+                        voiceSelect.innerHTML = '<option value="">⚠️ No voices</option>';
+                    }
+                };
+                tryPopulate();
+                speechSynth.onvoiceschanged = () => {
+                    populateVoices();
+                };
+            }
+        }
+
+        function testVoice() {
+            const testText = 'This is a voice test. Can you hear me?';
+            wordDisplay.textContent = '🔊 Testing voice...';
+            if (!voiceEnabled) {
+                voiceEnabled = true;
+                btnVoiceToggle.textContent = '🔊 Voice ON';
+                btnVoiceToggle.classList.add('on');
+            }
+            speakWord(testText);
+            setTimeout(() => {
+                if (!isRunning) {
+                    wordDisplay.textContent = '📚';
+                }
+            }, 2000);
+        }
+
+        // ─── Display word ───
         function showWord(index) {
             if (!words.length) {
-                wordDisplay.textContent = '📚 Внесете текст!';
+                wordDisplay.textContent = '📚 Paste text!';
                 return;
             }
             if (index >= words.length) {
-                // Заврши
                 stopReading();
-                wordDisplay.textContent = '🏁 Крај на книгата!';
+                wordDisplay.textContent = '🏁 End of book!';
                 wordDisplay.className = '';
                 return;
             }
             const word = words[index];
             wordDisplay.textContent = word;
             wordDisplay.className = '';
-            // мал ефект на пулс
             setTimeout(() => {
                 wordDisplay.classList.add('pulse');
             }, 50);
             setTimeout(() => {
                 wordDisplay.classList.remove('pulse');
             }, 150);
+            speakWord(word);
             currentIndex = index;
             updateProgress();
             updateStats();
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 5. Контроли
+        // 5. Controls
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         function startReading() {
             if (isRunning && !isPaused) return;
 
-            // Ако е паузиран, само продолжи
             if (isRunning && isPaused) {
                 resumeReading();
                 return;
             }
 
-            // Инаку, стартувај од почеток или од каде што е
             const text = textarea.value.trim();
             if (!text) {
-                alert('Ве молиме, внесете текст од книга.');
+                alert('Please paste some text.');
                 return;
             }
 
-            // Ако сме на крајот, рестартирај
             if (currentIndex >= words.length) {
                 currentIndex = 0;
             }
 
-            // Ако нема зборови или текстот е променет, пресметај
             const newWords = getWordsFromText(text);
-            // Провери дали е променет текстот – ако е, ресетирај
             if (JSON.stringify(newWords) !== JSON.stringify(words)) {
                 words = newWords;
                 currentIndex = 0;
             }
 
             if (words.length === 0) {
-                alert('Нема зборови за читање.');
+                alert('No words found.');
                 return;
             }
 
-            // Постави го првиот збор
             showWord(currentIndex);
             isPaused = false;
             isRunning = true;
             startTime = Date.now() - elapsedSeconds * 1000;
-            btnStart.textContent = '▶ Старт';
+            btnStart.textContent = '▶ Start';
 
-            // Подеси тајмер
             if (timer) clearInterval(timer);
             const speed = parseInt(speedSlider.value);
             timer = setInterval(() => {
@@ -582,28 +668,30 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
                 const next = currentIndex + 1;
                 if (next >= words.length) {
                     stopReading();
-                    wordDisplay.textContent = '🏁 Крај на книгата!';
+                    wordDisplay.textContent = '🏁 End of book!';
                     wordDisplay.className = '';
                     return;
                 }
                 showWord(next);
-            }, 60000 / speed); // ms per word
+            }, 60000 / speed);
         }
 
         function pauseReading() {
             if (!isRunning || isPaused) return;
             isPaused = true;
-            btnPause.textContent = '▶ Продолжи';
-            if (timer) clearInterval(timer);
-            timer = null;
-            // зачувај го истекот
+            btnPause.textContent = '▶ Resume';
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
             elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            if (speechSynth) speechSynth.cancel();
         }
 
         function resumeReading() {
             if (!isRunning || !isPaused) return;
             isPaused = false;
-            btnPause.textContent = '⏸ Пауза';
+            btnPause.textContent = '⏸ Pause';
             startTime = Date.now() - elapsedSeconds * 1000;
             const speed = parseInt(speedSlider.value);
             if (timer) clearInterval(timer);
@@ -612,7 +700,7 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
                 const next = currentIndex + 1;
                 if (next >= words.length) {
                     stopReading();
-                    wordDisplay.textContent = '🏁 Крај на книгата!';
+                    wordDisplay.textContent = '🏁 End of book!';
                     wordDisplay.className = '';
                     return;
                 }
@@ -627,10 +715,9 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
                 clearInterval(timer);
                 timer = null;
             }
-            btnStart.textContent = '▶ Старт';
-            btnPause.textContent = '⏸ Пауза';
-            // не го ресетираме индексот – останува каде што е
-            // само запираме
+            btnStart.textContent = '▶ Start';
+            btnPause.textContent = '⏸ Pause';
+            if (speechSynth) speechSynth.cancel();
         }
 
         function resetReading() {
@@ -645,12 +732,12 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
             } else {
                 wordDisplay.textContent = '📚';
             }
-            btnStart.textContent = '▶ Старт';
-            btnPause.textContent = '⏸ Пауза';
+            btnStart.textContent = '▶ Start';
+            btnPause.textContent = '⏸ Pause';
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 6. Поврзување на настани
+        // 6. Event listeners
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         btnStart.addEventListener('click', startReading);
 
@@ -666,21 +753,18 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
         btnStop.addEventListener('click', function() {
             if (!isRunning) return;
             stopReading();
-            // прикажи го тековниот збор без ефекти
             if (words.length && currentIndex < words.length) {
                 wordDisplay.textContent = words[currentIndex];
                 wordDisplay.className = '';
             } else {
-                wordDisplay.textContent = '⏹ Застанато';
+                wordDisplay.textContent = '⏹ Stopped';
             }
         });
 
         speedSlider.addEventListener('input', function() {
             const val = this.value;
             speedDisplay.textContent = val;
-            // Ако читањето е активно и не е паузирано, ресетирај го тајмерот
             if (isRunning && !isPaused) {
-                // ресетирај го интервалот со нова брзина
                 if (timer) {
                     clearInterval(timer);
                     timer = null;
@@ -691,7 +775,7 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
                     const next = currentIndex + 1;
                     if (next >= words.length) {
                         stopReading();
-                        wordDisplay.textContent = '🏁 Крај на книгата!';
+                        wordDisplay.textContent = '🏁 End of book!';
                         wordDisplay.className = '';
                         return;
                     }
@@ -700,13 +784,24 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
             }
         });
 
-        // Ако се промени текстот, ресетирај
+        // Voice toggle
+        btnVoiceToggle.addEventListener('click', function() {
+            voiceEnabled = !voiceEnabled;
+            this.textContent = voiceEnabled ? '🔊 Voice ON' : '🔇 Voice OFF';
+            this.classList.toggle('on', voiceEnabled);
+            if (!voiceEnabled && speechSynth) {
+                speechSynth.cancel();
+            }
+        });
+
+        btnTestVoice.addEventListener('click', testVoice);
+
+        // When text changes
         textarea.addEventListener('input', function() {
             if (isRunning) {
                 stopReading();
                 resetReading();
             }
-            // повторно парсирај
             const text = this.value.trim();
             words = getWordsFromText(text);
             currentIndex = 0;
@@ -723,9 +818,17 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 7. Иницијализација
+        // 7. Initialization
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         (function init() {
+            // Voice init
+            initVoices();
+            document.addEventListener('click', () => {
+                if (speechSynth && voices.length === 0) {
+                    initVoices();
+                }
+            });
+
             const text = textarea.value.trim();
             words = getWordsFromText(text);
             currentIndex = 0;
@@ -737,11 +840,10 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
             } else {
                 wordDisplay.textContent = '📚';
             }
-            // Подреди го лизгачот
             speedDisplay.textContent = speedSlider.value;
         })();
 
-        // ─── кратенка: Space за пауза/продолжи ───
+        // ─── Keyboard shortcuts: Space to pause/resume, R to reset ───
         document.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'TEXTAREA') return;
             if (e.key === ' ') {
@@ -759,8 +861,7 @@ Coleman and De Luccia (1980) extended the semiclassical tunneling analysis of Co
             }
         });
 
-        console.log('📖 Читач на книги · Притиснете SPACE за пауза/продолжи, R за рестарт');
+        console.log('📖 Speed Reader with Voice · Press SPACE to pause/resume, R to reset');
     </script>
-
 </body>
 </html>
